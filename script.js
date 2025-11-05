@@ -143,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const track = document.querySelector('.projects-track');
     const leftBtn = document.querySelector('.projects-arrow.left');
     const rightBtn = document.querySelector('.projects-arrow.right');
+    const dotsContainer = document.querySelector('.projects-dots');
 
     if (!track) return;
 
@@ -154,6 +155,47 @@ document.addEventListener('DOMContentLoaded', () => {
     rightBtn?.addEventListener('click', () => {
         track.scrollBy({ left: scrollByAmount(), behavior: 'smooth' });
     });
+
+    // Mobil dots/pagination
+    if (dotsContainer) {
+        const cards = Array.from(track.querySelectorAll('.project-card'));
+        // Dots oluştur
+        dotsContainer.innerHTML = '';
+        cards.forEach((_, idx) => {
+            const dot = document.createElement('button');
+            dot.className = 'projects-dot' + (idx === 0 ? ' active' : '');
+            dot.setAttribute('aria-label', `Kart ${idx + 1}`);
+            dot.setAttribute('role', 'tab');
+            dot.addEventListener('click', () => {
+                const target = cards[idx];
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', inline: 'start', block: 'nearest' });
+                }
+            });
+            dotsContainer.appendChild(dot);
+        });
+
+        const updateActiveDot = () => {
+            const scrollLeft = track.scrollLeft;
+            // En yakın kartın indeksini bul
+            let nearestIdx = 0;
+            let minDelta = Number.POSITIVE_INFINITY;
+            cards.forEach((card, idx) => {
+                const delta = Math.abs(card.offsetLeft - scrollLeft);
+                if (delta < minDelta) { minDelta = delta; nearestIdx = idx; }
+            });
+            const dots = Array.from(dotsContainer.querySelectorAll('.projects-dot'));
+            dots.forEach((d, i) => d.classList.toggle('active', i === nearestIdx));
+        };
+
+        track.addEventListener('scroll', () => {
+            // Scroll sonunda aktif noktayı güncelle
+            window.requestAnimationFrame(updateActiveDot);
+        }, { passive: true });
+
+        // İlk durum
+        updateActiveDot();
+    }
 });
 
 // Görseller için Lightbox (tam ekran önizleme)

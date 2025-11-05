@@ -502,6 +502,29 @@ section h2 {
 
 .projects-arrow:hover { background: rgba(0,0,0,0.75); }
 
+/* Dots/Pagination */
+.projects-dots {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+.projects-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 4px;
+    background: #c7d2fe; /* açık mavi */
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.projects-dot.active {
+    width: 22px;
+    background: var(--primary-color);
+}
+
 .project-card {
     background: #f8f9fa;
     border-radius: 10px;
@@ -955,6 +978,10 @@ footer {
     /* Mobilde okları içeri al */
     .projects-arrow.left { left: 8px; }
     .projects-arrow.right { right: 8px; }
+
+    /* Mobilde okları gizle, dots göster */
+    .projects-arrow { display: none; }
+    .projects-dots { display: flex; }
 }
 
 /* Nav Right */
