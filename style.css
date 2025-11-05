@@ -163,6 +163,36 @@ body {
     color: var(--text-color);
 }
 
+/* Typewriter (yazma) animasyonu - isim için */
+.typewriter {
+    position: relative;
+    white-space: nowrap;
+}
+
+.typewriter::after {
+    content: '';
+    position: absolute;
+    right: -4px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 2px;
+    height: 1.1em;
+    background: var(--primary-color);
+    animation: caret-blink 0.9s steps(1) infinite;
+}
+
+@keyframes caret-blink {
+    0%, 50% { opacity: 1; }
+    50.01%, 100% { opacity: 0; }
+}
+
+/* Yazı bittikten sonra imleci gizle */
+.typewriter.done::after {
+    animation: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
 .hero p {
     font-size: 1.2rem;
     color: var(--light-text);

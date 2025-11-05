@@ -111,6 +111,31 @@ document.addEventListener('DOMContentLoaded', () => {
         heroContent.style.opacity = '1';
         heroContent.style.transform = 'translateY(0)';
     }, 200);
+
+    // Typewriter effect for name
+    const tw = document.querySelector('.typewriter');
+    if (tw) {
+        const fullText = tw.getAttribute('data-text') || tw.textContent.trim();
+        tw.textContent = '';
+        let i = 0;
+        const speed = 80; // ms per char
+
+        const type = () => {
+            if (i <= fullText.length) {
+                tw.textContent = fullText.slice(0, i);
+                i += 1;
+                if (i <= fullText.length) {
+                    setTimeout(type, speed);
+                } else {
+                    // Yazı tamamlandı; 2 saniye sonra imleci gizle
+                    setTimeout(() => {
+                        tw.classList.add('done');
+                    }, 2000);
+                }
+            }
+        };
+        type();
+    }
 });
 
 // Projeler: yatay kaydırma (sadece oklar; sürükle-bırak devre dışı)
