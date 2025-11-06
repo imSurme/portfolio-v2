@@ -52,13 +52,31 @@ function toggleLanguage() {
         langButton.textContent = currentLang.toUpperCase();
     });
     
-    // Tüm çevrilebilir elementleri bul ve değiştir
+    // Fade-out animasyonu: Tüm çevrilebilir elementleri fade-out yap
     document.querySelectorAll('[data-tr]').forEach(element => {
         if (!element.closest('.btn') || element.tagName.toLowerCase() === 'span') {
-            element.textContent = element.getAttribute(`data-${currentLang}`);
+            element.classList.add('fade-out');
         }
     });
-
+    
+    // Fade-out sonrası içeriği değiştir ve fade-in yap
+    setTimeout(() => {
+        document.querySelectorAll('[data-tr]').forEach(element => {
+            if (!element.closest('.btn') || element.tagName.toLowerCase() === 'span') {
+                element.textContent = element.getAttribute(`data-${currentLang}`);
+                element.classList.remove('fade-out');
+                element.classList.add('fade-in');
+            }
+        });
+        
+        // Fade-in animasyonunu başlat
+        setTimeout(() => {
+            document.querySelectorAll('[data-tr]').forEach(element => {
+                element.classList.remove('fade-in');
+            });
+        }, 300);
+    }, 150);
+    
     // HTML lang attribute'unu güncelle
     document.documentElement.lang = currentLang;
 }
