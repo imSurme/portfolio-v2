@@ -86,9 +86,10 @@ function toggleLanguage() {
     document.documentElement.lang = currentLang;
 }
 
-// Navbar scroll efekti
-window.addEventListener('scroll', () => {
-    const navbar = document.querySelector('.navbar');
+// Navbar görünümü (scroll + tema)
+const navbar = document.querySelector('.navbar');
+function updateNavbarAppearance() {
+    if (!navbar) return;
     if (window.scrollY > 50) {
         const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
         navbar.style.background = isDark ? 'rgba(17, 24, 39, 0.85)' : 'rgba(255, 255, 255, 0.98)';
@@ -98,7 +99,8 @@ window.addEventListener('scroll', () => {
         navbar.style.background = isDark ? 'rgba(17, 24, 39, 0.7)' : 'rgba(255, 255, 255, 0.95)';
         navbar.style.boxShadow = 'none';
     }
-});
+}
+window.addEventListener('scroll', updateNavbarAppearance);
 
 // Smooth scroll için
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -297,6 +299,7 @@ function getColorPreference() {
 function setPreference() {
     localStorage.setItem(storageKey, theme.value);
     reflectPreference();
+    updateNavbarAppearance();
 }
 
 function reflectPreference() {
@@ -309,8 +312,6 @@ function reflectPreference() {
 function onThemeToggleClick() {
     theme.value = theme.value === 'light' ? 'dark' : 'light';
     setPreference();
-    // Navbar arka planını yeni temaya göre güncelle
-    window.dispatchEvent(new Event('scroll'));
 }
 
 // early reflect to avoid flash
