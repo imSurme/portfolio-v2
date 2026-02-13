@@ -709,6 +709,28 @@ section h2 {
     padding: 0.5rem;
 }
 
+/* Proje kartında birden fazla görsel (yan yana) */
+.project-images-row {
+    display: flex;
+    gap: 4px;
+    background: var(--light-background);
+    border-bottom: 1px solid var(--light-background);
+}
+.project-images-row .project-image {
+    flex: 1;
+    height: 250px;
+    object-fit: contain;
+    padding: 0.5rem;
+    border-bottom: none;
+    background: var(--light-background);
+}
+.project-images-row .project-image:not(:last-child) {
+    border-right: 1px solid rgba(0,0,0,0.06);
+}
+.project-images-row .project-image:last-child {
+    border-right: none;
+}
+
 /* Görsel Lightbox Modal */
 .image-modal {
     position: fixed;
@@ -1454,6 +1476,16 @@ footer {
         object-fit: contain;
         background: var(--light-background);
         padding: 1rem;
+    }
+
+    .project-images-row {
+        gap: 0;
+    }
+
+    .project-images-row .project-image {
+        height: 150px;
+        padding: 1rem 0;
+        margin: 1.7rem 0;
     }
 
     .project-header {
