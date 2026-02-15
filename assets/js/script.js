@@ -102,16 +102,27 @@ function updateNavbarAppearance() {
 }
 window.addEventListener('scroll', updateNavbarAppearance);
 
-// Smooth scroll için
+// Hero kod ikonu: profil resminin etrafında yörüngede döner — aşağı kaydır = saat yönü, yukarı = tersi
+const heroBadge = document.querySelector('.hero-avatar-badge');
+function updateHeroBadgeOrbit() {
+    if (!heroBadge) return;
+    var deg = window.scrollY * 0.4;
+    heroBadge.style.setProperty('--orbit-angle', deg + 'deg');
+}
+window.addEventListener('scroll', updateHeroBadgeOrbit);
+updateHeroBadgeOrbit();
+
+// Smooth scroll için — tüm bölümler (Eğitim, Deneyim, vb.) aynı üst boşlukla hizalanır
+const SCROLL_OFFSET_PX = 88; // ~5.5rem, navbar için
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
-        const target = document.querySelector(this.getAttribute('href'));
+        const href = this.getAttribute('href');
+        if (href === '#') return;
+        const target = document.querySelector(href);
         if (target) {
-            target.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
+            const y = target.getBoundingClientRect().top + window.pageYOffset;
+            window.scrollTo({ top: y - SCROLL_OFFSET_PX, behavior: 'smooth' });
         }
     });
 });
@@ -129,17 +140,18 @@ document.querySelectorAll('.skill-card').forEach(card => {
 
 // Sayfa yüklendiğinde animasyon
 document.addEventListener('DOMContentLoaded', () => {
-    const heroContent = document.querySelector('.hero-content');
-    heroContent.style.opacity = '0';
-    heroContent.style.transform = 'translateY(20px)';
-    
-    setTimeout(() => {
-        heroContent.style.transition = 'all 0.8s ease-out';
-        heroContent.style.opacity = '1';
-        heroContent.style.transform = 'translateY(0)';
-    }, 200);
+    const heroContent = document.querySelector('.hero-content') || document.querySelector('.hero-modern .hero-grid');
+    if (heroContent) {
+        heroContent.style.opacity = '0';
+        heroContent.style.transform = 'translateY(20px)';
+        setTimeout(() => {
+            heroContent.style.transition = 'all 0.8s ease-out';
+            heroContent.style.opacity = '1';
+            heroContent.style.transform = 'translateY(0)';
+        }, 200);
+    }
 
-    // Typewriter effect for name
+    // Typewriter effect for name — "Merhaba ben" göründükten sonra başlasın (0.6s)
     const tw = document.querySelector('.typewriter');
     if (tw) {
         const fullText = tw.getAttribute('data-text') || tw.textContent.trim();
@@ -155,6 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     const jitter = Math.max(40, baseSpeed + (Math.random() * 60 - 30));
                     setTimeout(type, jitter);
                 } else {
+                    tw.classList.add('typed');
                     // Yazı tamamlandı; 2 saniye sonra imleci gizle
                     setTimeout(() => {
                         tw.classList.add('done');
@@ -162,7 +175,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         };
-        type();
+        setTimeout(type, 600);
+    }
+    // Eğitim bölümü görününce timeline animasyonu
+    const educationSection = document.getElementById('egitim');
+    if (educationSection) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('education-visible');
+                }
+            });
+        }, { rootMargin: '0px 0px -80px 0px', threshold: 0.2 });
+        observer.observe(educationSection);
     }
     // Tema başlangıcı: aşağıdaki global tema yöneticisi early reflect yapıyor
 });
@@ -253,6 +278,47 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Projeler: filtreleme + tıklayınca kartı çevir (flip)
+document.addEventListener('DOMContentLoaded', () => {
+    const section = document.querySelector('.projects-modern');
+    if (!section) return;
+    const track = section.querySelector('.projects-track');
+    const cards = track ? Array.from(track.querySelectorAll('.project-card')) : [];
+    const filterBtns = section.querySelectorAll('.projects-filter-btn');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.getAttribute('data-filter');
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            cards.forEach(card => {
+                const category = card.getAttribute('data-category');
+                const show = filter === 'all' || category === filter;
+                card.style.display = show ? '' : 'none';
+            });
+        });
+    });
+
+    const isMobile = () => window.matchMedia('(max-width: 639px)').matches;
+    cards.forEach(card => {
+        const inner = card.querySelector('.project-card-inner');
+        const front = card.querySelector('.project-card-front');
+        const back = card.querySelector('.project-card-back');
+        if (!inner || !front || !back) return;
+
+        front.addEventListener('click', () => {
+            if (isMobile()) return;
+            card.classList.toggle('flipped', true);
+        });
+        back.addEventListener('click', (e) => {
+            if (e.target.closest('a')) return;
+            e.preventDefault();
+            if (isMobile()) return;
+            card.classList.remove('flipped');
+        });
+    });
+});
+
 // Görseller için Lightbox (tam ekran önizleme)
 document.addEventListener('DOMContentLoaded', () => {
     const modal = document.querySelector('.image-modal');
@@ -263,6 +329,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!modal || !modalImg || !modalClose) return;
 
     images.forEach(img => {
+        if (img.closest('.project-card-front')) return;
         img.style.cursor = 'zoom-in';
         img.addEventListener('click', () => {
             modalImg.src = img.getAttribute('src');
@@ -293,7 +360,7 @@ const theme = { value: getColorPreference() };
 function getColorPreference() {
     const stored = localStorage.getItem(storageKey);
     if (stored) return stored;
-    return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+    return 'dark';
 }
 
 function setPreference() {
@@ -337,14 +404,20 @@ const sections = document.querySelectorAll('section:not(.hero)');
 
 const observerOptions = {
     root: null,
-    rootMargin: '0px',
-    threshold: 0.15
+    rootMargin: '-110px 0px -110px 0px',
+    threshold: 0.45
 };
 
 const sectionObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
         if (entry.isIntersecting) {
             entry.target.classList.add('visible');
+            if (entry.target.id === 'projeler') {
+                const cards = entry.target.querySelectorAll('.project-card');
+                cards.forEach(card => {
+                    card.style.animationDelay = (Math.random() * 0.7).toFixed(2) + 's';
+                });
+            }
             observer.unobserve(entry.target); // Bir kez görününce gözlemi durdur
         }
     });
@@ -354,41 +427,49 @@ sections.forEach(section => {
     sectionObserver.observe(section);
 });
 
-// Aktif bölümü belirlemek için scroll event listener
-window.addEventListener('scroll', () => {
-    const sections = document.querySelectorAll('section');
-    const navLinks = document.querySelectorAll('.nav-links a');
-    
+// Aktif bölüm: viewport merkezi hangi section içindeyse o aktif; en üst/en alt öncelikli
+function updateActiveNavLink() {
+    const sections = document.querySelectorAll('section[id]');
+    const navLinks = document.querySelectorAll('.nav-links a[href^="#"]');
+    const viewportCenter = window.innerHeight / 2;
+    const scrollBottom = window.pageYOffset + window.innerHeight;
+    const docHeight = document.documentElement.scrollHeight;
     let current = '';
-    const scrollY = window.pageYOffset;
-    
-    sections.forEach(section => {
-        const sectionTop = section.offsetTop;
-        const sectionHeight = section.clientHeight;
-        
-        // Scroll pozisyonuna göre aktif bölümü belirle
-        if (scrollY >= sectionTop - 150 && scrollY <= sectionTop + sectionHeight - 150) {
-            current = section.getAttribute('id');
-        }
-    });
-    
-    // Sayfanın en altında olup olmadığını kontrol et
-    if ((window.innerHeight + window.pageYOffset) >= document.documentElement.scrollHeight - 100) {
+
+    // En alttayken her zaman İletişim (kısa section için viewport ortası Projeler'de kalabiliyor)
+    if (scrollBottom >= docHeight - 60) {
         current = 'iletisim';
-    }
-    
-    // Tüm linklerdeki active sınıfını kaldır ve aktif olana ekle
-    navLinks.forEach(link => {
-        link.classList.remove('active');
-        if (link.getAttribute('href').substring(1) === current) {
-            link.classList.add('active');
+    } else if (window.pageYOffset < 80) {
+        current = 'hakkimda';
+    } else {
+        for (let i = 0; i < sections.length; i++) {
+            const rect = sections[i].getBoundingClientRect();
+            if (rect.top <= viewportCenter && rect.bottom >= viewportCenter) {
+                current = sections[i].getAttribute('id') || '';
+                break;
+            }
         }
+        if (!current) current = sections[0] ? (sections[0].getAttribute('id') || 'hakkimda') : 'hakkimda';
+    }
+
+    const currentNorm = (current || '').trim();
+    navLinks.forEach(link => {
+        const id = (link.getAttribute('href') || '').replace(/^#/, '').trim();
+        link.classList.toggle('active', id === currentNorm);
     });
-});
+}
+
+window.addEventListener('scroll', updateActiveNavLink);
+// Sayfa ilk açıldığında Hakkımda aktif olsun
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateActiveNavLink);
+} else {
+    updateActiveNavLink();
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     const terminal = document.querySelector('.terminal');
-    const terminalToggle = document.querySelector('.terminal-toggle');
+    const terminalWrapper = document.querySelector('.terminal-wrapper');
     const terminalInput = document.querySelector('.terminal-input');
     const terminalOutput = document.querySelector('.terminal-output');
     const closeButton = document.querySelector('.terminal-button.close');
@@ -880,47 +961,68 @@ I'm mainly interested in web development, databases, and artificial intelligence
         contact: () => terminalTexts[currentLang].contact
     };
 
-    // Terminal toggle
-    terminalToggle.addEventListener('click', () => {
-        if (terminal.classList.contains('active')) {
-            // Oyun çalışıyorsa tamamen temizle
+    function openTerminal() {
+        if (terminal.classList.contains('active')) return;
+        var trigger = document.querySelector('.hero-terminal-trigger');
+        if (trigger && terminalWrapper) {
+            var r = trigger.getBoundingClientRect();
+            var tw = 660;
+            var th = 440;
+            var gap = 10;
+            var left = r.left - tw - gap;
+            var top = r.bottom + gap;
+            if (left < gap) left = gap;
+            if (top + th > window.innerHeight - gap) top = window.innerHeight - th - gap;
+            if (top < gap) top = gap;
+            terminalWrapper.style.left = left + 'px';
+            terminalWrapper.style.top = top + 'px';
+            terminalWrapper.style.right = 'auto';
+            terminalWrapper.style.bottom = 'auto';
+        }
+        terminal.classList.add('active');
+        terminalInput.focus();
+        const canvas = document.getElementById('snake-canvas');
+        if (canvas) {
             cleanupSnakeGame();
-            terminal.classList.add('closing');
-            setTimeout(() => {
-                terminal.classList.remove('active');
-                terminal.classList.remove('closing');
-            }, 300);
-        } else {
-            terminal.classList.toggle('active');
-            terminalInput.focus();
-            
-            // Terminal açıldığında oyun canvas'ı varsa temizle
-            const canvas = document.getElementById('snake-canvas');
-            if (canvas) {
-                cleanupSnakeGame();
-                terminalOutput.innerHTML = '';
-            }
-            
-            // İlk açılışta karşılama mesajı göster
-            if (!terminalOutput.innerHTML) {
-                const welcomeMessage = {
-                    tr: `[${new Date().toLocaleString('tr-TR')}] Terminal başlatıldı...
+            terminalOutput.innerHTML = '';
+        }
+        if (!terminalOutput.innerHTML) {
+            const welcomeMessage = {
+                tr: `[${new Date().toLocaleString('tr-TR')}] Terminal başlatıldı...
 
 Hoş geldiniz! İbrahim Mert'in portfolyo terminaline bağlandınız.
 Kullanılabilir komutları görmek için "help" yazın.`,
-                    en: `[${new Date().toLocaleString('en-US')}] Terminal started...
+                en: `[${new Date().toLocaleString('en-US')}] Terminal started...
 
 Welcome! Connected to İbrahim Mert's portfolio terminal.
 Type "help" to see available commands.`
-                };
-                
-                const output = document.createElement('div');
-                output.innerHTML = welcomeMessage[currentLang];
-                terminalOutput.appendChild(output);
-                terminalOutput.scrollTop = terminalOutput.scrollHeight;
-            }
+            };
+            const output = document.createElement('div');
+            output.innerHTML = welcomeMessage[currentLang];
+            terminalOutput.appendChild(output);
+            terminalOutput.scrollTop = terminalOutput.scrollHeight;
         }
-    });
+    }
+
+    function closeTerminal() {
+        if (!terminal.classList.contains('active')) return;
+        cleanupSnakeGame();
+        terminal.classList.add('closing');
+        setTimeout(() => {
+            terminal.classList.remove('active');
+            terminal.classList.remove('closing');
+            terminal.classList.remove('maximized');
+            isMaximized = false;
+        }, 300);
+    }
+
+    const heroTerminalTrigger = document.querySelector('.hero-terminal-trigger');
+    if (heroTerminalTrigger) {
+        heroTerminalTrigger.addEventListener('click', () => {
+            if (terminal.classList.contains('active')) closeTerminal();
+            else openTerminal();
+        });
+    }
 
     // Maximize/Minimize işlevleri
     let isMaximized = false;
@@ -938,6 +1040,38 @@ Type "help" to see available commands.`
             isMaximized = false;
         }
     });
+
+    // Header'dan sürükleyerek terminali taşıma
+    const terminalHeader = document.querySelector('.terminal-header');
+    if (terminalHeader && terminalWrapper) {
+        terminalHeader.addEventListener('mousedown', (e) => {
+            if (e.target.closest('.terminal-button')) return;
+            if (isMaximized) return;
+            const rect = terminalWrapper.getBoundingClientRect();
+            let startX = e.clientX - rect.left;
+            let startY = e.clientY - rect.top;
+
+            function onMouseMove(e) {
+                document.body.style.cursor = 'grabbing';
+                let left = e.clientX - startX;
+                let top = e.clientY - startY;
+                const gap = 8;
+                left = Math.max(gap, Math.min(left, window.innerWidth - rect.width - gap));
+                top = Math.max(gap, Math.min(top, window.innerHeight - rect.height - gap));
+                terminalWrapper.style.left = left + 'px';
+                terminalWrapper.style.top = top + 'px';
+                terminalWrapper.style.right = 'auto';
+                terminalWrapper.style.bottom = 'auto';
+            }
+            function onMouseUp() {
+                document.body.style.cursor = '';
+                document.removeEventListener('mousemove', onMouseMove);
+                document.removeEventListener('mouseup', onMouseUp);
+            }
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+    }
 
     // Kapatma butonu
     closeButton.addEventListener('click', () => {
@@ -992,11 +1126,11 @@ Type "help" to see available commands.`
         terminalOutput.scrollTop = terminalOutput.scrollHeight;
     });
 
-    // Terminal dışına tıklandığında kapanma
+    // Terminal dışına tıklandığında kapanma (hero ikonu hariç)
     document.addEventListener('click', (e) => {
         if (terminal.classList.contains('active') && 
             !terminal.contains(e.target) && 
-            !terminalToggle.contains(e.target)) {
+            !(heroTerminalTrigger && heroTerminalTrigger.contains(e.target))) {
             // Oyun çalışıyorsa tamamen temizle
             cleanupSnakeGame();
             terminal.classList.add('closing');
@@ -1006,4 +1140,10 @@ Type "help" to see available commands.`
             }, 300);
         }
     });
-}); 
+});
+
+// Footer yılını otomatik güncelle
+(function () {
+    var el = document.getElementById('footer-year');
+    if (el) el.textContent = new Date().getFullYear();
+})();
