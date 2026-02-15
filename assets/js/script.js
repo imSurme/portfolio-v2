@@ -121,6 +121,8 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         if (href === '#') return;
         const target = document.querySelector(href);
         if (target) {
+            // Nav'dan tıklanınca hedef bölüm hemen visible olsun (mobilde IntersectionObserver gecikebiliyor)
+            target.classList.add('visible');
             const y = target.getBoundingClientRect().top + window.pageYOffset;
             window.scrollTo({ top: y - SCROLL_OFFSET_PX, behavior: 'smooth' });
         }
@@ -402,8 +404,8 @@ if (window.matchMedia) {
 // Scroll Animasyonu için Intersection Observer
 const sections = document.querySelectorAll('section:not(.hero)');
 
-// Mobilde threshold daha düşük olsun (dar ekranda 0.45'e hiç ulaşılamayabiliyor)
-const isMobile = () => window.innerWidth <= 768;
+// Mobilde daha toleranslı ayarlar: küçük ekranda rootMargin ve threshold tetiklemeyi engelleyebiliyor
+const isMobile = () => window.matchMedia('(max-width: 768px)').matches;
 const observerOptions = {
     root: null,
     rootMargin: isMobile() ? '-60px 0px -60px 0px' : '-110px 0px -110px 0px',

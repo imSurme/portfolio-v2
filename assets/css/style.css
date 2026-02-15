@@ -2041,6 +2041,13 @@ section[id="iletisim"] {
     }
 }
 
+/* Mobil: dar ekranda minmax(260px) taşma yapmasın */
+@media (max-width: 576px) {
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* Kart — eğitim/deneyim kartları gibi: ince border, hover’da gölge */
 .skill-card {
     position: relative;
