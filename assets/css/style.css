@@ -1593,6 +1593,16 @@ section[id="iletisim"] {
     scroll-margin-top: 5.5rem;
 }
 
+@media (max-width: 768px) {
+    section[id="egitim"],
+    section[id="deneyim"],
+    section[id="yetenekler"],
+    section[id="projeler"],
+    section[id="iletisim"] {
+        scroll-margin-top: 2.25rem; /* Mobilde başlık hemen navbar altı (36px) */
+    }
+}
+
 .experience-modern .experience-container {
     max-width: 56rem;
     margin-left: auto;

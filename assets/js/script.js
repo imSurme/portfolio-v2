@@ -113,7 +113,8 @@ window.addEventListener('scroll', updateHeroBadgeOrbit);
 updateHeroBadgeOrbit();
 
 // Smooth scroll için — tüm bölümler (Eğitim, Deneyim, vb.) aynı üst boşlukla hizalanır
-const SCROLL_OFFSET_PX = 88; // ~5.5rem, navbar için
+// Mobilde navbar 70px; başlık hemen navbar altında
+const getScrollOffset = () => window.matchMedia('(max-width: 768px)').matches ? 36 : 88;
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
@@ -124,7 +125,7 @@ document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             // Nav'dan tıklanınca hedef bölüm hemen visible olsun (mobilde IntersectionObserver gecikebiliyor)
             target.classList.add('visible');
             const y = target.getBoundingClientRect().top + window.pageYOffset;
-            window.scrollTo({ top: y - SCROLL_OFFSET_PX, behavior: 'smooth' });
+            window.scrollTo({ top: y - getScrollOffset(), behavior: 'smooth' });
         }
     });
 });
