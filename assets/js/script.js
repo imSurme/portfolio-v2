@@ -402,10 +402,12 @@ if (window.matchMedia) {
 // Scroll Animasyonu için Intersection Observer
 const sections = document.querySelectorAll('section:not(.hero)');
 
+// Mobilde threshold daha düşük olsun (dar ekranda 0.45'e hiç ulaşılamayabiliyor)
+const isMobile = () => window.innerWidth <= 768;
 const observerOptions = {
     root: null,
-    rootMargin: '-110px 0px -110px 0px',
-    threshold: 0.45
+    rootMargin: isMobile() ? '-60px 0px -60px 0px' : '-110px 0px -110px 0px',
+    threshold: isMobile() ? 0.1 : 0.45
 };
 
 const sectionObserver = new IntersectionObserver((entries, observer) => {
