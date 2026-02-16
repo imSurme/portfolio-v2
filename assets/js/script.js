@@ -114,7 +114,8 @@ updateHeroBadgeOrbit();
 
 // Smooth scroll için — tüm bölümler (Eğitim, Deneyim, vb.) aynı üst boşlukla hizalanır
 // Mobilde navbar 70px; başlık hemen navbar altında
-const getScrollOffset = () => window.matchMedia('(max-width: 768px)').matches ? 36 : 88;
+// Desktop'ta biraz DAHA FAZLA kaydırma için offset'i küçülttük (daha aşağı iner)
+const getScrollOffset = () => window.matchMedia('(max-width: 768px)').matches ? 36 : 48;
 document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
         e.preventDefault();
